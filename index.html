@@ -348,40 +348,64 @@
     }
 
     .board-grid {
-      display: grid;
-      grid-template-columns: repeat(6, minmax(0, 1fr));
-      gap: 10px;
+      background-image: url('board-paraboom.jpeg');
+      background-size: contain;
+      background-repeat: no-repeat;
+      background-position: center;
+      aspect-ratio: 900/1200;
+      width: 100%;
+      position: relative;
+      display: block;
+    }
+
+    .board-grid::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background-image: url('board-paraboom.jpeg');
+      background-size: contain;
+      background-repeat: no-repeat;
+      background-position: center;
+      pointer-events: none;
+      z-index: 0;
     }
 
     .cell {
-      min-height: 88px;
+      min-height: auto;
       border-radius: 22px;
-      position: relative;
+      position: absolute;
       padding: 10px;
-      overflow: hidden;
+      overflow: visible;
       border: 2px solid transparent;
-      display: grid;
-      grid-template-rows: auto 1fr;
-      justify-items: center;
-      align-items: start;
+      display: flex;
+      justify-content: center;
+      align-items: center;
       text-align: center;
-      background: #f8fcff;
+      background: transparent;
       cursor: pointer;
-      transition: transform 0.18s ease, border-color 0.18s ease, background-color 0.18s ease;
+      transition: transform 0.18s ease, border-color 0.18s ease;
+      z-index: 2;
+      opacity: 0.7;
+      pointer-events: auto;
     }
 
     .cell:hover:not(.disabled) {
-      transform: translateY(-2px);
+      transform: scale(1.1);
+      opacity: 1;
     }
 
     .cell.special {
       border-color: rgba(249,115,22,0.32);
-      background: #eff9ff;
+      background: transparent;
     }
 
     .cell.allowed {
       border-color: #0ea5e9;
-      background: #e0f2fe;
+      background: rgba(224, 242, 254, 0.3);
+      opacity: 1;
     }
 
     .cell.disabled {
@@ -390,52 +414,57 @@
 
     .cell.start,
     .cell.finish {
-      background: #d0f5ff;
+      background: transparent;
     }
 
     .cell-number {
       position: absolute;
-      top: 12px;
-      left: 12px;
-      font-size: 0.82rem;
+      top: 2px;
+      left: 2px;
+      font-size: 0.6rem;
       font-weight: 700;
       color: #475569;
+      display: none;
     }
 
     .cell-icon {
-      font-size: 1.45rem;
+      font-size: 0.8rem;
       line-height: 1;
+      display: none;
     }
 
     .cell-label {
-      margin-top: 6px;
-      font-size: 0.78rem;
+      font-size: 0.6rem;
       color: #334155;
       font-weight: 700;
-      line-height: 1.3;
+      line-height: 1.2;
+      display: none;
     }
 
     .player-marker {
       position: absolute;
-      bottom: 8px;
-      left: 8px;
-      right: 8px;
+      bottom: -4px;
+      left: 50%;
+      transform: translateX(-50%);
       display: flex;
       flex-wrap: wrap;
-      gap: 6px;
-      justify-content: flex-start;
+      gap: 2px;
+      justify-content: center;
+      z-index: 10;
     }
 
     .marker {
-      min-width: 18px;
-      min-height: 18px;
+      min-width: 12px;
+      min-height: 12px;
+      max-width: 14px;
+      max-height: 14px;
       border-radius: 999px;
       display: grid;
       place-items: center;
-      font-size: 0.72rem;
+      font-size: 0.5rem;
       font-weight: 700;
       color: white;
-      border: 2px solid #fff;
+      border: 1px solid #fff;
     }
 
     .marker.p1 { background: #f97316; }
@@ -655,8 +684,67 @@
 
   <script>
     const boardData = Array.from({ length: 48 }, (_, index) => ({ number: index + 1, title: 'Normal', icon: '▫️' }));
+    
+    // Posisi kotak dalam persentase (x, y dari top-left) untuk gambar board
+    // Layout meander spiral dari bawah ke atas, kiri ke kanan
+    const cellPositions = {
+      // Baris bawah (kotak 1-8)
+      1: { x: 11, y: 90 },
+      2: { x: 18, y: 90 },
+      3: { x: 25, y: 90 },
+      4: { x: 32, y: 90 },
+      5: { x: 39, y: 90 },
+      6: { x: 46, y: 90 },
+      7: { x: 53, y: 90 },
+      8: { x: 60, y: 75 },
+      // Baris 2 (kotak 9-19), meander balik
+      9: { x: 67, y: 75 },
+      10: { x: 60, y: 75 },
+      11: { x: 53, y: 75 },
+      12: { x: 46, y: 71 },
+      13: { x: 11, y: 71 },
+      14: { x: 18, y: 71 },
+      15: { x: 25, y: 71 },
+      16: { x: 32, y: 71 },
+      17: { x: 39, y: 56 },
+      18: { x: 46, y: 56 },
+      19: { x: 60, y: 56 },
+      // Baris 3 (kotak 20-31)
+      20: { x: 67, y: 56 },
+      21: { x: 60, y: 52 },
+      22: { x: 53, y: 52 },
+      23: { x: 46, y: 48 },
+      24: { x: 39, y: 48 },
+      25: { x: 32, y: 48 },
+      26: { x: 18, y: 48 },
+      27: { x: 11, y: 44 },
+      28: { x: 18, y: 44 },
+      29: { x: 25, y: 41 },
+      30: { x: 32, y: 41 },
+      31: { x: 39, y: 37 },
+      // Baris 4 (kotak 32-43)
+      32: { x: 46, y: 33 },
+      33: { x: 53, y: 33 },
+      34: { x: 60, y: 33 },
+      35: { x: 67, y: 33 },
+      36: { x: 60, y: 27 },
+      37: { x: 53, y: 27 },
+      38: { x: 46, y: 27 },
+      39: { x: 39, y: 27 },
+      40: { x: 32, y: 27 },
+      41: { x: 25, y: 23 },
+      42: { x: 18, y: 19 },
+      43: { x: 11, y: 11 },
+      // Baris atas (kotak 44-48)
+      44: { x: 18, y: 11 },
+      45: { x: 25, y: 11 },
+      46: { x: 32, y: 7 },
+      47: { x: 39, y: 7 },
+      48: { x: 11, y: 3 }
+    };
+    
     const specialSquares = {
-      1: { title: 'START', icon: '🏁', type: 'start' },
+      43: { title: 'START', icon: '🏁', type: 'start' },
       48: { title: 'FINISH', icon: '🏁', type: 'finish' },
       2: { title: 'BOOM', icon: '💣', type: 'boom' },
       3: { title: 'TANTANGAN', icon: '🏋️', type: 'challenge' },
@@ -837,7 +925,7 @@
         const character = getCharacterById(playerCharacters[index]);
         players.push({
           name: playerNames[index].trim() || `Pemain ${index + 1}`,
-          position: 1,
+          position: 43,
           color: `p${index + 1}`,
           character,
           avatar: character.initial
@@ -918,6 +1006,16 @@
         if (cell.type === 'start') node.classList.add('start');
         if (cell.type === 'finish') node.classList.add('finish');
         node.dataset.number = cell.number;
+        
+        const pos = cellPositions[cell.number];
+        if (pos) {
+          node.style.left = pos.x + '%';
+          node.style.top = pos.y + '%';
+          node.style.width = '8%';
+          node.style.height = '10%';
+          node.style.transform = 'translate(-50%, -50%)';
+        }
+        
         node.innerHTML = `
           <div class="cell-number">${cell.number}</div>
           <div class="cell-icon">${cell.icon}</div>
