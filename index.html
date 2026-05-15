@@ -1,393 +1,73 @@
 <!DOCTYPE html>
 <html lang="id">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>PARABOOM - Ular Tangga Virtual</title>
-  <style>
-    html, body {
-      margin: 0;
-      padding: 0;
-      min-height: 100%;
-      height: 100%;
-      overflow: hidden;
-      font-family: system-ui, sans-serif;
-      background: #e4f0fb;
-      color: #182334;
-    }
-
-    body {
-      display: grid;
-      place-items: center;
-      padding: 16px;
-      box-sizing: border-box;
-    }
-
-    .app {
-      display: grid;
-      grid-template-columns: minmax(320px, 1.2fr) minmax(300px, 0.85fr);
-      gap: 20px;
-      width: min(1120px, calc(100vw - 32px));
-      max-height: calc(100vh - 32px);
-      align-items: start;
-    }
-
-    h1 {
-      margin: 0 0 14px;
-      font-size: clamp(1.8rem, 2.3vw, 2.4rem);
-      line-height: 1.05;
-    }
-
-    .board-wrapper {
-      position: relative;
-      width: 100%;
-      max-width: 540px;
-      max-height: calc(100vh - 120px);
-      aspect-ratio: 1131 / 1600;
-      background: #fff;
-      border: 12px solid #2a5caa;
-      border-radius: 24px;
-      overflow: hidden;
-      box-shadow: 0 20px 45px rgba(0, 0, 0, 0.14);
-    }
-
-    .board-image {
-      width: 100%;
-      height: 100%;
-      object-fit: cover;
-      display: block;
-    }
-
-    .token {
-      position: absolute;
-      width: 34px;
-      height: 34px;
-      border-radius: 50%;
-      display: grid;
-      place-items: center;
-      color: #fff;
-      font-weight: 700;
-      text-shadow: 0 0 3px rgba(0, 0, 0, 0.25);
-      box-shadow: 0 6px 16px rgba(0, 0, 0, 0.2);
-      transform: translate(-50%, -50%);
-      transition: top 0.35s ease, left 0.35s ease;
-      z-index: 2;
-    }
-
-    .token.p1 { background: #e94f37; }
-    .token.p2 { background: #39a2db; }
-    .token.p3 { background: #3dcd58; }
-    .token.p4 { background: #f0c419; color: #111; }
-
-    .panel {
-      display: grid;
-      gap: 16px;
-      padding: 24px;
-      background: rgba(255, 255, 255, 0.96);
-      border-radius: 24px;
-      box-shadow: 0 18px 36px rgba(0, 0, 0, 0.1);
-      max-height: 100%;
-      overflow: hidden;
-    }
-
-    .controls {
-      display: grid;
-      grid-template-columns: repeat(3, minmax(0, 1fr));
-      gap: 12px;
-    }
-
-    .controls label,
-    .controls button {
-      width: 100%;
-    }
-
-    input[type="number"], button {
-      padding: 14px 16px;
-      border-radius: 14px;
-      border: 1px solid #cbd5e1;
-      background: #fff;
-      font-size: 1rem;
-      outline: none;
-      transition: border-color 0.2s ease, box-shadow 0.2s ease;
-    }
-
-    input[type="number"]:focus,
-    button:focus {
-      border-color: #2a5caa;
-      box-shadow: 0 0 0 4px rgba(42, 92, 170, 0.16);
-    }
-
-    button {
-      cursor: pointer;
-      border: none;
-      background: #2a5caa;
-      color: #fff;
-      font-weight: 700;
-      transition: background 0.2s ease;
-    }
-
-    button:hover {
-      background: #1f4a8a;
-    }
-
-    .status {
-      background: #f0f6ff;
-      color: #0f244f;
-      border-radius: 18px;
-      padding: 18px;
-      min-height: 110px;
-      line-height: 1.6;
-      white-space: pre-wrap;
-      overflow-wrap: break-word;
-    }
-
-    .players {
-      display: grid;
-      gap: 12px;
-    }
-
-    .player-card {
-      display: grid;
-      grid-template-columns: auto 1fr;
-      gap: 12px;
-      align-items: center;
-      padding: 14px 16px;
-      border: 1px solid #d9e2ec;
-      border-radius: 18px;
-      background: #ffffff;
-    }
-
-    .player-dot {
-      width: 18px;
-      height: 18px;
-      border-radius: 999px;
-    }
-
-    .player-card.active {
-      border-color: #2a5caa;
-      background: #eaf1ff;
-    }
-
-    .player-card .info {
-      display: grid;
-      gap: 4px;
-    }
-
-    .player-card .name {
-      font-weight: 700;
-    }
-
-    .player-card .position {
-      color: #475569;
-      font-size: 0.96rem;
-    }
-
-    .footer {
-      font-size: 0.92rem;
-      color: #475569;
-      text-align: center;
-      padding-top: 8px;
-    }
-
-    @media (max-width: 920px) {
-      .app {
-        grid-template-columns: 1fr;
-      }
-
-      .board-wrapper {
-        max-width: 100%;
-      }
-
-      .controls {
-        grid-template-columns: 1fr;
-      }
-    }
-  </style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>PARABOOM</title>
+  <link rel="stylesheet" href="style.css">
 </head>
 <body>
-  <div class="app">
-    <div class="board-wrapper">
-      <img src="board-paraboom.jpeg" alt="Board PARABOOM" class="board-image" />
-      <div class="token p1" id="token-1">1</div>
-      <div class="token p2" id="token-2">2</div>
-      <div class="token p3" id="token-3">3</div>
-      <div class="token p4" id="token-4">4</div>
-    </div>
 
-    <div class="panel">
-      <h1>PARABOOM - Ular Tangga</h1>
-      <div class="controls">
-        <label>
-          Jumlah pemain
-          <input type="number" id="player-count" min="2" max="4" value="2" />
-        </label>
-        <button id="start-btn">Mulai Permainan</button>
-        <button id="roll-btn" disabled>Roll Dadu</button>
+<div class="container">
+
+  <h1>PARABOOM</h1>
+
+  <section id="setup" class="card">
+    <h2>Masukkan Nama Pemain</h2>
+
+    <input id="p1" placeholder="Pemain 1">
+    <input id="p2" placeholder="Pemain 2">
+    <input id="p3" placeholder="Pemain 3">
+    <input id="p4" placeholder="Pemain 4">
+
+    <button onclick="startGame()">Mulai Game</button>
+  </section>
+
+  <section id="game" class="hidden">
+
+    <div class="top-panel">
+
+      <div>
+        <h2>Giliran: <span id="turnName"></span></h2>
+        <p>Dadu: <span id="diceResult">-</span></p>
       </div>
 
-      <div class="status" id="status">Pilih jumlah pemain lalu klik "Mulai Permainan" untuk bermain.</div>
-      <div class="players" id="player-list"></div>
-      <div class="footer">Board akan selalu muat di layar laptop tanpa scroll. Token bergerak sesuai nomor kotak di papan.</div>
+      <div id="dice" class="dice">🎲</div>
+
+      <button id="rollBtn" onclick="rollDice()">
+        Lempar Dadu
+      </button>
+
     </div>
-  </div>
 
-  <script>
-    const SQUARE_COUNT = 48;
-    const rollBtn = document.getElementById('roll-btn');
-    const startBtn = document.getElementById('start-btn');
-    const statusEl = document.getElementById('status');
-    const playerList = document.getElementById('player-list');
-    const playerCountInput = document.getElementById('player-count');
-    const tokenEls = [null, document.getElementById('token-1'), document.getElementById('token-2'), document.getElementById('token-3'), document.getElementById('token-4')];
+    <div class="main">
 
-    const snakes = {
-      14: 5,
-      22: 12,
-      41: 28
-    };
+      <div class="board-area">
+        <img src="assets/board.png" class="board-img">
 
-    const ladders = {
-      4: 18,
-      11: 26,
-      19: 36
-    };
+        <div id="pawnLayer"></div>
+      </div>
 
-    let players = [];
-    let currentPlayer = 0;
-    let gameActive = false;
+      <aside class="side-panel">
 
-    function initializeGame() {
-      const count = Math.max(2, Math.min(4, parseInt(playerCountInput.value, 10) || 2));
-      playerCountInput.value = count;
-      players = [];
-      for (let i = 1; i <= count; i += 1) {
-        players.push({ id: i, name: `Pemain ${i}`, position: 0, colorClass: `p${i}` });
-      }
-      currentPlayer = 0;
-      gameActive = true;
-      rollBtn.disabled = false;
-      renderPlayers();
-      updateTokens();
-      setStatus(`Permainan dimulai! Giliran ${players[currentPlayer].name}. Klik Roll Dadu untuk bergerak.`);
-    }
+        <h2>Status Pemain</h2>
+        <div id="playerStatus"></div>
 
-    function setStatus(message) {
-      statusEl.textContent = message;
-    }
+        <div id="questionBox"
+             class="question-box hidden">
+        </div>
 
-    function renderPlayers() {
-      playerList.innerHTML = '';
-      players.forEach((player, index) => {
-        const card = document.createElement('div');
-        card.className = 'player-card';
-        if (index === currentPlayer) card.classList.add('active');
+        <h2>Log Permainan</h2>
+        <div id="logBox"></div>
 
-        const dot = document.createElement('span');
-        dot.className = `player-dot ${player.colorClass}`;
-        card.appendChild(dot);
+      </aside>
 
-        const info = document.createElement('div');
-        info.className = 'info';
-        const name = document.createElement('div');
-        name.className = 'name';
-        name.textContent = player.name;
-        const pos = document.createElement('div');
-        pos.className = 'position';
-        pos.textContent = `Posisi: ${player.position === 0 ? 'START' : player.position}`;
-        info.appendChild(name);
-        info.appendChild(pos);
-        card.appendChild(info);
+    </div>
 
-        playerList.appendChild(card);
-      });
-    }
+  </section>
 
-    function updateTokens() {
-      players.forEach(player => {
-        const token = tokenEls[player.id];
-        const { left, top } = getSquarePosition(player.position);
-        token.style.left = `${left}%`;
-        token.style.top = `${top}%`;
-        token.style.display = player.position === 0 ? 'none' : 'grid';
-      });
-      for (let id = players.length + 1; id <= 4; id += 1) {
-        tokenEls[id].style.display = 'none';
-      }
-    }
+</div>
 
-    function getSquarePosition(square) {
-      if (square <= 0) {
-        return { left: 12, top: 96 };
-      }
-      if (square > SQUARE_COUNT) square = SQUARE_COUNT;
-      const index = square - 1;
-      const row = Math.floor(index / 6);
-      const positionInRow = index % 6;
-      const col = row % 2 === 0 ? positionInRow : 5 - positionInRow;
-      const left = 8 + col * 16.8;
-      const top = 92 - row * 12;
-      return { left, top };
-    }
-
-    function nextPlayer() {
-      currentPlayer = (currentPlayer + 1) % players.length;
-      renderPlayers();
-    }
-
-    function applySnakeOrLadder(player) {
-      if (ladders[player.position]) {
-        player.position = ladders[player.position];
-        setStatus(`${player.name} naik tangga ke ${player.position}! Giliran ${players[currentPlayer].name}.`);
-      } else if (snakes[player.position]) {
-        player.position = snakes[player.position];
-        setStatus(`${player.name} tergelincir ular ke ${player.position}! Giliran ${players[currentPlayer].name}.`);
-      } else {
-        setStatus(`${player.name} berada di ${player.position}. Giliran ${players[currentPlayer].name}.`);
-      }
-    }
-
-    startBtn.addEventListener('click', initializeGame);
-
-    rollBtn.addEventListener('click', () => {
-      if (!gameActive) return;
-
-      const player = players[currentPlayer];
-      const dice = Math.floor(Math.random() * 6) + 1;
-      const target = player.position + dice;
-      const baseMessage = `${player.name} melempar dadu: ${dice}. `;
-
-      if (target > SQUARE_COUNT) {
-        setStatus(`${baseMessage}Tidak bisa maju, tetap di ${player.position}. Giliran berikutnya.`);
-        nextPlayer();
-        renderPlayers();
-        return;
-      }
-
-      player.position = target;
-      updateTokens();
-      let message = `${baseMessage}Maju ke ${player.position}.`;
-
-      if (ladders[player.position] || snakes[player.position]) {
-        applySnakeOrLadder(player);
-        updateTokens();
-        message = statusEl.textContent;
-      } else {
-        setStatus(`${message} Giliran ${players[(currentPlayer + 1) % players.length].name}.`);
-      }
-
-      if (player.position === SQUARE_COUNT) {
-        setStatus(`${message}\n\n${player.name} MENANG! 🎉 Tekan "Mulai Permainan" untuk bermain lagi.`);
-        gameActive = false;
-        rollBtn.disabled = true;
-        renderPlayers();
-        return;
-      }
-
-      nextPlayer();
-      renderPlayers();
-    });
-
-    initializeGame();
-  </script>
+<script src="script.js"></script>
 </body>
 </html>
