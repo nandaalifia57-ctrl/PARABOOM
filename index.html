@@ -1,0 +1,1074 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>PARABOOM - Ular Tangga Fisika</title>
+  <style>
+    :root {
+      --bg: #E8F5F9;
+      --card: #ffffff;
+      --panel: #153E61;
+      --panel-soft: #1C5D7B;
+      --text: #0F172A;
+      --muted: #64748B;
+      --accent: #0284c7;
+      --accent-soft: #e0f2fe;
+      --shadow: 0 20px 50px rgba(15, 23, 42, 0.12);
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      font-family: Inter, system-ui, sans-serif;
+      background: radial-gradient(circle at top, #d5f0f9 0%, #bedee8 35%, #accad2 100%);
+      color: var(--text);
+      display: flex;
+      justify-content: center;
+      align-items: flex-start;
+      padding: 32px 16px;
+    }
+
+    .page {
+      width: min(1020px, 100%);
+      display: grid;
+      gap: 24px;
+      margin: 0 auto;
+    }
+
+    .flow-page {
+      display: none;
+      gap: 24px;
+    }
+
+    .flow-page.active {
+      display: grid;
+    }
+
+    .hero-card,
+    .form-card,
+    .panel {
+      background: var(--card);
+      border-radius: 28px;
+      border: 1px solid rgba(15, 23, 42, 0.08);
+      box-shadow: var(--shadow);
+      padding: 28px;
+    }
+
+    h1,
+    h2 {
+      margin: 0;
+      color: var(--panel);
+    }
+
+    h1 {
+      font-size: clamp(2.4rem, 4vw, 3.6rem);
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+    }
+
+    h2 {
+      font-size: 1.7rem;
+      margin-bottom: 12px;
+    }
+
+    p,
+    .hint-text {
+      margin: 0;
+      color: var(--muted);
+      line-height: 1.75;
+      font-size: 1rem;
+    }
+
+    .hero-card p {
+      margin: 18px 0 0;
+    }
+
+    .hint-list {
+      list-style: none;
+      margin: 22px 0 0;
+      padding: 0;
+      display: grid;
+      gap: 12px;
+    }
+
+    .hint-item {
+      display: grid;
+      grid-template-columns: auto 1fr;
+      gap: 12px;
+      align-items: flex-start;
+      padding: 16px 18px;
+      border-radius: 18px;
+      background: #f8fbff;
+      border: 1px solid rgba(2, 132, 199, 0.12);
+    }
+
+    .hint-item strong {
+      color: var(--panel);
+      display: block;
+      margin-bottom: 4px;
+    }
+
+    .hint-icon {
+      width: 40px;
+      height: 40px;
+      border-radius: 16px;
+      background: #dbeafe;
+      color: #0369a1;
+      display: grid;
+      place-items: center;
+      font-size: 1.1rem;
+    }
+
+    .button {
+      width: 100%;
+      border: none;
+      border-radius: 18px;
+      background: linear-gradient(135deg, #0ea5e9, #0284c7);
+      color: white;
+      font-size: 1rem;
+      font-weight: 700;
+      padding: 16px;
+      cursor: pointer;
+      transition: transform 0.18s ease, filter 0.18s ease;
+      margin-top: 20px;
+    }
+
+    .button:hover:not(:disabled) {
+      filter: brightness(1.05);
+      transform: translateY(-1px);
+    }
+
+    .button:disabled {
+      opacity: 0.55;
+      cursor: not-allowed;
+      transform: none;
+    }
+
+    .radio-group {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 14px;
+      margin-top: 18px;
+    }
+
+    .radio-option {
+      display: block;
+      border-radius: 22px;
+      border: 1px solid #cbd5e1;
+      padding: 18px 16px;
+      text-align: center;
+      cursor: pointer;
+      background: white;
+      transition: border-color 0.2s ease, box-shadow 0.2s ease, transform 0.2s ease;
+    }
+
+    .radio-option.selected {
+      border-color: #0ea5e9;
+      box-shadow: 0 12px 26px rgba(14, 165, 233, 0.12);
+      transform: translateY(-1px);
+      background: #eff6ff;
+    }
+
+    .radio-option input {
+      display: none;
+    }
+
+    .radio-option strong {
+      display: block;
+      margin-bottom: 8px;
+      color: var(--panel);
+      font-size: 1rem;
+    }
+
+    .radio-option span {
+      color: var(--muted);
+      font-size: 0.95rem;
+    }
+
+    .player-fields {
+      display: grid;
+      gap: 16px;
+      margin-top: 24px;
+    }
+
+    .name-input {
+      display: grid;
+      gap: 10px;
+    }
+
+    .name-input label {
+      font-weight: 700;
+      color: var(--panel);
+    }
+
+    .name-input input {
+      width: 100%;
+      padding: 14px 16px;
+      border-radius: 16px;
+      border: 1px solid #cbd5e1;
+      background: #f8fbff;
+      color: var(--text);
+      font-size: 1rem;
+    }
+
+    .character-grid {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 16px;
+      margin-top: 20px;
+    }
+
+    .character-card {
+      border-radius: 24px;
+      padding: 18px;
+      border: 1px solid rgba(15, 23, 42, 0.08);
+      background: #f8fcff;
+      cursor: pointer;
+      transition: transform 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease;
+      display: grid;
+      gap: 14px;
+      text-align: left;
+      min-height: 220px;
+    }
+
+    .character-card:hover:not(.disabled) {
+      transform: translateY(-2px);
+    }
+
+    .character-card.disabled {
+      opacity: 0.55;
+      cursor: not-allowed;
+    }
+
+    .character-card.selected {
+      border-color: #0ea5e9;
+      box-shadow: 0 18px 30px rgba(14,165,233,0.16);
+      background: linear-gradient(180deg, #d7f7ff 0%, #effcff 100%);
+    }
+
+    .character-avatar {
+      width: 100%;
+      min-height: 120px;
+      border-radius: 22px;
+      display: grid;
+      place-items: center;
+      position: relative;
+      overflow: hidden;
+      color: white;
+      font-size: 2.6rem;
+      font-weight: 800;
+    }
+
+    .character-avatar::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      opacity: 0.15;
+      background: radial-gradient(circle at top left, rgba(255,255,255,0.55), transparent 40%);
+    }
+
+    .character-name {
+      font-size: 1rem;
+      font-weight: 800;
+      color: var(--panel);
+    }
+
+    .character-meta {
+      color: var(--muted);
+      font-size: 0.9rem;
+      line-height: 1.5;
+      min-height: 3rem;
+    }
+
+    .player-summary {
+      display: grid;
+      gap: 12px;
+      margin-top: 16px;
+    }
+
+    .player-summary-item {
+      display: grid;
+      grid-template-columns: auto 1fr auto;
+      gap: 14px;
+      align-items: center;
+      border-radius: 20px;
+      border: 1px solid rgba(15, 23, 42, 0.08);
+      padding: 14px 16px;
+      background: #f8fbff;
+    }
+
+    .player-summary-item.active {
+      border-color: #0ea5e9;
+      background: rgba(14,165,233,0.12);
+    }
+
+    .player-summary-icon {
+      width: 46px;
+      height: 46px;
+      border-radius: 18px;
+      display: grid;
+      place-items: center;
+      color: white;
+      font-size: 1.2rem;
+      font-weight: 800;
+    }
+
+    .player-summary-meta {
+      display: grid;
+      gap: 4px;
+    }
+
+    .player-summary-meta strong {
+      font-size: 1rem;
+      color: var(--panel);
+    }
+
+    .player-summary-meta span {
+      font-size: 0.9rem;
+      color: var(--muted);
+    }
+
+    .game-grid {
+      display: grid;
+      grid-template-columns: minmax(0, 1.6fr) minmax(300px, 1fr);
+      gap: 24px;
+    }
+
+    .board-frame {
+      background: linear-gradient(180deg, rgba(255,255,255,0.94), rgba(233,244,249,0.95));
+      border: 12px solid #AED9EB;
+      border-radius: 40px;
+      padding: 22px;
+      box-shadow: 0 30px 70px rgba(15, 23, 42, 0.16);
+    }
+
+    .board-grid {
+      display: grid;
+      grid-template-columns: repeat(6, minmax(0, 1fr));
+      gap: 10px;
+    }
+
+    .cell {
+      min-height: 88px;
+      border-radius: 22px;
+      position: relative;
+      padding: 10px;
+      overflow: hidden;
+      border: 2px solid transparent;
+      display: grid;
+      grid-template-rows: auto 1fr;
+      justify-items: center;
+      align-items: start;
+      text-align: center;
+      background: #f8fcff;
+      cursor: pointer;
+      transition: transform 0.18s ease, border-color 0.18s ease, background-color 0.18s ease;
+    }
+
+    .cell:hover:not(.disabled) {
+      transform: translateY(-2px);
+    }
+
+    .cell.special {
+      border-color: rgba(249,115,22,0.32);
+      background: #eff9ff;
+    }
+
+    .cell.allowed {
+      border-color: #0ea5e9;
+      background: #e0f2fe;
+    }
+
+    .cell.disabled {
+      cursor: default;
+    }
+
+    .cell.start,
+    .cell.finish {
+      background: #d0f5ff;
+    }
+
+    .cell-number {
+      position: absolute;
+      top: 12px;
+      left: 12px;
+      font-size: 0.82rem;
+      font-weight: 700;
+      color: #475569;
+    }
+
+    .cell-icon {
+      font-size: 1.45rem;
+      line-height: 1;
+    }
+
+    .cell-label {
+      margin-top: 6px;
+      font-size: 0.78rem;
+      color: #334155;
+      font-weight: 700;
+      line-height: 1.3;
+    }
+
+    .player-marker {
+      position: absolute;
+      bottom: 8px;
+      left: 8px;
+      right: 8px;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      justify-content: flex-start;
+    }
+
+    .marker {
+      min-width: 18px;
+      min-height: 18px;
+      border-radius: 999px;
+      display: grid;
+      place-items: center;
+      font-size: 0.72rem;
+      font-weight: 700;
+      color: white;
+      border: 2px solid #fff;
+    }
+
+    .marker.p1 { background: #f97316; }
+    .marker.p2 { background: #2563eb; }
+    .marker.p3 { background: #22c55e; }
+    .marker.p4 { background: #fb7185; }
+
+    .panel-list {
+      display: grid;
+      gap: 18px;
+    }
+
+    .panel h2 {
+      margin-bottom: 14px;
+      font-size: 1.2rem;
+    }
+
+    .stats {
+      display: grid;
+      gap: 14px;
+    }
+
+    .status-card {
+      display: grid;
+      gap: 8px;
+    }
+
+    .stat-box {
+      display: grid;
+      gap: 6px;
+      padding: 14px 16px;
+      border-radius: 20px;
+      border: 1px solid rgba(15, 23, 42, 0.08);
+      background: #fff;
+    }
+
+    .stat-box span:first-child {
+      color: var(--muted);
+      font-size: 0.9rem;
+    }
+
+    .stat-small {
+      color: var(--panel);
+      font-weight: 700;
+      font-size: 1rem;
+    }
+
+    .status-row {
+      display: grid;
+      gap: 12px;
+      padding: 14px 16px;
+      border-radius: 20px;
+      border: 1px solid rgba(15, 23, 42, 0.08);
+      background: #fff;
+    }
+
+    .status-row.active {
+      border-color: #0ea5e9;
+      background: rgba(14,165,233,0.1);
+    }
+
+    .status-info {
+      display: flex;
+      gap: 12px;
+      align-items: center;
+    }
+
+    .status-avatar {
+      width: 38px;
+      height: 38px;
+      border-radius: 16px;
+      display: grid;
+      place-items: center;
+      color: white;
+      font-weight: 700;
+    }
+
+    .status-text strong {
+      display: block;
+      color: var(--panel);
+    }
+
+    .status-text span {
+      display: block;
+      color: var(--muted);
+      font-size: 0.92rem;
+    }
+
+    .instruction-box {
+      background: #eff6ff;
+      border-radius: 20px;
+      border: 1px solid rgba(2, 132, 199, 0.18);
+      padding: 16px 18px;
+      font-size: 0.96rem;
+      color: var(--panel);
+      line-height: 1.7;
+    }
+
+    .log {
+      max-height: 280px;
+      overflow-y: auto;
+      display: grid;
+      gap: 12px;
+      padding-right: 4px;
+    }
+
+    .log-entry {
+      background: #eaf7ff;
+      color: #0f172a;
+      padding: 12px 14px;
+      border-radius: 16px;
+      border: 1px solid rgba(15,23,42,0.08);
+      font-size: 0.95rem;
+    }
+
+    .footer-note {
+      margin-top: 12px;
+      color: var(--muted);
+      font-size: 0.92rem;
+      text-align: center;
+    }
+
+    @media (max-width: 900px) {
+      body { padding: 24px 12px; }
+      .radio-group { grid-template-columns: 1fr; }
+      .character-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+      .game-grid { grid-template-columns: 1fr; }
+      .board-frame { padding: 18px; }
+      .cell { min-height: 84px; }
+      .character-card { min-height: 200px; }
+    }
+
+    @media (max-width: 640px) {
+      .page { padding: 0; }
+      .hero-card, .form-card, .panel { padding: 22px; }
+      .radio-option { padding: 16px; }
+      .button { padding: 14px; }
+    }
+  </style>
+</head>
+<body>
+  <div class="page">
+    <section id="introPage" class="flow-page active">
+      <div class="hero-card">
+        <div style="display:grid; gap:14px;">
+          <h1>PARABOOM</h1>
+          <p>PARABOOM adalah game papan seperti ular tangga dengan fitur BOOM, TANTANGAN, MERIAM, PEROSOTAN, dan LAMPU FAKTA. Mainkan bersama teman, hingga 4 pemain.</p>
+        </div>
+        <h2>Petunjuk Penggunaan</h2>
+        <ul class="hint-list">
+          <li class="hint-item"><span class="hint-icon">1</span><div><strong>Pilih jumlah pemain</strong><span>Minimal 2 dan maksimal 4 pemain.</span></div></li>
+          <li class="hint-item"><span class="hint-icon">2</span><div><strong>Isi nama pemain</strong><span>Semua nama harus diisi sebelum lanjut.</span></div></li>
+          <li class="hint-item"><span class="hint-icon">3</span><div><strong>Pilih karakter unik</strong><span>Setiap pemain memilih satu karakter berbeda.</span></div></li>
+          <li class="hint-item"><span class="hint-icon">4</span><div><strong>Giliran lempar dadu</strong><span>Pemain bergiliran melempar dadu dan memindahkan token manual.</span></div></li>
+          <li class="hint-item"><span class="hint-icon">5</span><div><strong>Ikuti efek kotak</strong><span>Jika berhenti di kotak khusus, efek akan dijalankan.</span></div></li>
+          <li class="hint-item"><span class="hint-icon">6</span><div><strong>Capai FINISH</strong><span>Pemain pertama ke kotak FINISH menang.</span></div></li>
+        </ul>
+        <button class="button" id="introContinue">Lanjut</button>
+      </div>
+    </section>
+
+    <section id="setupPage" class="flow-page">
+      <div class="form-card">
+        <h2>Siapkan Pemain</h2>
+        <p>Pilih jumlah pemain dan isi nama setiap peserta.</p>
+        <div class="radio-group" id="playerCountOptions">
+          <label class="radio-option selected" data-count="2"><input name="playerCount" type="radio" value="2" checked /><strong>2 Pemain</strong><span>Main cepat bersama dua pemain.</span></label>
+          <label class="radio-option" data-count="3"><input name="playerCount" type="radio" value="3" /><strong>3 Pemain</strong><span>Seru bersama tiga teman.</span></label>
+          <label class="radio-option" data-count="4"><input name="playerCount" type="radio" value="4" /><strong>4 Pemain</strong><span>Permainan lengkap untuk keluarga.</span></label>
+        </div>
+        <div class="player-fields" id="playerNameFields"></div>
+        <button class="button" id="setupContinue" disabled>Lanjut Pilih Karakter</button>
+      </div>
+    </section>
+
+    <section id="characterPage" class="flow-page">
+      <div class="form-card">
+        <h2>Pilih Karakter</h2>
+        <p>Pilih satu karakter untuk setiap pemain. Karakter yang dipilih tidak dapat digunakan oleh pemain lain.</p>
+        <div class="player-summary" id="playerCharacterSummary"></div>
+        <div class="character-grid" id="characterGrid"></div>
+        <button class="button" id="startGameButton" disabled>Mulai Game</button>
+      </div>
+    </section>
+
+    <section id="gamePage" class="flow-page">
+      <div class="hero-card">
+        <h2>Board Game PARABOOM</h2>
+        <p class="hint-text">Permainan dimulai. Pemain menekan dadu lalu memilih kotak tujuan secara manual sesuai angka dadu.</p>
+      </div>
+      <div class="game-grid">
+        <section class="board-frame">
+          <div class="board-grid" id="boardGrid"></div>
+        </section>
+        <aside class="panel-list">
+          <section class="panel">
+            <h2>Daftar Pemain</h2>
+            <div class="status-card" id="playerStatusList"></div>
+          </section>
+          <section class="panel">
+            <h2>Status Permainan</h2>
+            <div class="instruction-box" id="instructionText">Tekan "Lempar Dadu" untuk memulai giliran pemain.</div>
+            <div class="stats" style="margin-top:16px;">
+              <div class="stat-box"><span>Giliran</span><span class="stat-small" id="currentPlayer">-</span></div>
+              <div class="stat-box"><span>Dadu</span><span class="stat-small" id="diceValue">-</span></div>
+            </div>
+            <button class="button" id="rollButton" disabled>Lempar Dadu</button>
+          </section>
+          <section class="panel">
+            <h2>Log Permainan</h2>
+            <div class="log" id="gameLog"></div>
+          </section>
+        </aside>
+      </div>
+    </section>
+  </div>
+
+  <script>
+    const boardData = Array.from({ length: 48 }, (_, index) => ({ number: index + 1, title: 'Normal', icon: '▫️' }));
+    const specialSquares = {
+      1: { title: 'START', icon: '🏁', type: 'start' },
+      48: { title: 'FINISH', icon: '🏁', type: 'finish' },
+      2: { title: 'BOOM', icon: '💣', type: 'boom' },
+      3: { title: 'TANTANGAN', icon: '🏋️', type: 'challenge' },
+      5: { title: 'TANTANGAN', icon: '🏋️', type: 'challenge' },
+      6: { title: 'MERIAM', icon: '🚀', type: 'cannon', target: 12 },
+      7: { title: 'BOOM', icon: '💣', type: 'boom' },
+      8: { title: 'LAMP', icon: '💡', type: 'lamp' },
+      10: { title: 'PEROSOTAN', icon: '🪜', type: 'slide', target: 4 },
+      11: { title: 'BOOM', icon: '💣', type: 'boom' },
+      13: { title: 'TANTANGAN', icon: '🏋️', type: 'challenge' },
+      14: { title: 'BOOM', icon: '💣', type: 'boom' },
+      15: { title: 'LAMP', icon: '💡', type: 'lamp' },
+      17: { title: 'MERIAM', icon: '🚀', type: 'cannon', target: 21 },
+      19: { title: 'TANTANGAN', icon: '🏋️', type: 'challenge' },
+      22: { title: 'LAMP', icon: '💡', type: 'lamp' },
+      23: { title: 'BOOM', icon: '💣', type: 'boom' },
+      25: { title: 'BOOM', icon: '💣', type: 'boom' },
+      26: { title: 'TANTANGAN', icon: '🏋️', type: 'challenge' },
+      28: { title: 'PEROSOTAN', icon: '🪜', type: 'slide', target: 23 },
+      29: { title: 'BOOM', icon: '💣', type: 'boom' },
+      30: { title: 'MERIAM', icon: '🚀', type: 'cannon', target: 42 },
+      32: { title: 'LAMP', icon: '💡', type: 'lamp' },
+      33: { title: 'TANTANGAN', icon: '🏋️', type: 'challenge' },
+      35: { title: 'BOOM', icon: '💣', type: 'boom' },
+      36: { title: 'BOOM', icon: '💣', type: 'boom' },
+      38: { title: 'PEROSOTAN', icon: '🪜', type: 'slide', target: 31 },
+      39: { title: 'BOOM', icon: '💣', type: 'boom' },
+      40: { title: 'TANTANGAN', icon: '🏋️', type: 'challenge' },
+      42: { title: 'LAMP', icon: '💡', type: 'lamp' },
+      43: { title: 'BOOM', icon: '💣', type: 'boom' },
+      44: { title: 'TANTANGAN', icon: '🏋️', type: 'challenge' },
+      46: { title: 'BOOM', icon: '💣', type: 'boom' }
+    };
+    Object.entries(specialSquares).forEach(([number, info]) => {
+      boardData[number - 1] = { number: +number, ...info };
+    });
+
+    const boomQuestions = [
+      { question: 'Satu prinsip penting saat menghadapi BOOM adalah apa? (jawab "keselamatan")', answer: 'keselamatan' },
+      { question: 'Jika dadu menunjukkan 5, berapa langkah maju yang harus ditempuh?', answer: '5' },
+      { question: 'Jika lintasan proyektil melengkung, gerak ini disebut apa?', answer: 'parabola' }
+    ];
+    const challengeQuestions = [
+      { question: 'Komponen kecepatan horizontal pada gerak parabola tetap atau berubah? (jawab "tetap")', answer: 'tetap' },
+      { question: 'Apa nama titik tertinggi pada lintasan parabola? (jawab "puncak")', answer: 'puncak' },
+      { question: 'Pada sudut 45°, apakah jangkauan biasanya maksimum? (jawab "ya")', answer: 'ya' }
+    ];
+    const lampFacts = [
+      'Fakta: Gerak parabola terdiri dari gerak horizontal tetap dan gerak vertikal berubah.',
+      'Fakta: Titik tertinggi parabola disebut puncak.',
+      'Fakta: Di gerak parabola, gravitasi selalu menarik benda ke bawah.'
+    ];
+
+    const characterOptions = [
+      { id: 'bunny', label: 'Kelinci', description: 'Kelinci putih yang lucu dan ceria.', color: '#fb7185', initial: '🐰' },
+      { id: 'cat', label: 'Kucing', description: 'Kucing oranye yang imut dan manja.', color: '#facc15', initial: '🐱' },
+      { id: 'bear', label: 'Beruang', description: 'Beruang cokelat yang menggemaskan dan ramah.', color: '#a16207', initial: '🐻' },
+      { id: 'frog', label: 'Katak', description: 'Katak hijau yang aktif dan seru.', color: '#34d399', initial: '🐸' }
+    ];
+
+    let selectedPlayerCount = 2;
+    let playerNames = ['', '', '', ''];
+    let playerCharacters = [null, null, null, null];
+    let currentCharacterPlayer = 0;
+    let players = [];
+    let currentPlayer = 0;
+    let gameEnded = false;
+    let awaitingMove = false;
+    let pendingDice = 0;
+
+    const pages = {
+      intro: document.getElementById('introPage'),
+      setup: document.getElementById('setupPage'),
+      character: document.getElementById('characterPage'),
+      game: document.getElementById('gamePage')
+    };
+    const playerNameFields = document.getElementById('playerNameFields');
+    const playerCharacterSummary = document.getElementById('playerCharacterSummary');
+    const characterGrid = document.getElementById('characterGrid');
+    const playerStatusList = document.getElementById('playerStatusList');
+    const rollButton = document.getElementById('rollButton');
+    const currentPlayerLabel = document.getElementById('currentPlayer');
+    const diceValueLabel = document.getElementById('diceValue');
+    const instructionText = document.getElementById('instructionText');
+
+    function showPage(pageId) {
+      Object.values(pages).forEach(page => page.classList.remove('active'));
+      pages[pageId].classList.add('active');
+    }
+
+    function renderPlayerNameFields() {
+      playerNameFields.innerHTML = '';
+      for (let index = 0; index < selectedPlayerCount; index += 1) {
+        const field = document.createElement('div');
+        field.className = 'name-input';
+        field.innerHTML = `
+          <label for="playerInput${index}">Pemain ${index + 1}</label>
+          <input id="playerInput${index}" type="text" value="" placeholder="Nama Pemain ${index + 1}" />
+        `;
+        field.querySelector('input').addEventListener('input', event => {
+          playerNames[index] = event.target.value;
+          validateSetup();
+        });
+        playerNameFields.append(field);
+      }
+      validateSetup();
+    }
+
+    function validateSetup() {
+      const allFilled = [...playerNameFields.querySelectorAll('input')].every(input => input.value.trim() !== '');
+      document.getElementById('setupContinue').disabled = !allFilled;
+    }
+
+    function getCharacterById(id) {
+      return characterOptions.find(character => character.id === id) || {};
+    }
+
+    function renderCharacterSummary() {
+      playerCharacterSummary.innerHTML = '';
+      for (let index = 0; index < selectedPlayerCount; index += 1) {
+        const selected = playerCharacters[index];
+        const character = selected ? getCharacterById(selected) : null;
+        const item = document.createElement('div');
+        item.className = 'player-summary-item' + (currentCharacterPlayer === index ? ' active' : '');
+        item.innerHTML = `
+          <div class="player-summary-icon" style="background:${character ? character.color : '#94a3b8'};">${character ? character.initial : index + 1}</div>
+          <div class="player-summary-meta">
+            <strong>${playerNames[index] || `Pemain ${index + 1}`}</strong>
+            <span>${character ? character.label : 'Belum memilih karakter'}</span>
+          </div>
+          <button class="button" type="button">${character ? 'Ubah' : 'Pilih'}</button>
+        `;
+        item.querySelector('button').style.width = 'auto';
+        item.querySelector('button').style.padding = '10px 16px';
+        item.querySelector('button').addEventListener('click', () => {
+          currentCharacterPlayer = index;
+          renderCharacterSummary();
+          renderCharacterGrid();
+        });
+        playerCharacterSummary.append(item);
+      }
+    }
+
+    function renderCharacterGrid() {
+      characterGrid.innerHTML = '';
+      characterOptions.forEach(character => {
+        const isTaken = playerCharacters.includes(character.id);
+        const isSelected = playerCharacters[currentCharacterPlayer] === character.id;
+        const card = document.createElement('button');
+        card.type = 'button';
+        card.className = 'character-card';
+        if (isTaken && !isSelected) card.classList.add('disabled');
+        if (isSelected) card.classList.add('selected');
+        card.innerHTML = `
+          <div class="character-avatar" style="background:${character.color};">${character.initial}</div>
+          <div class="character-name">${character.label}</div>
+          <div class="character-meta">${character.description}</div>
+          <div style="display:flex; justify-content:flex-end;"><span style="font-size:0.95rem; font-weight:700; color:${isSelected ? '#0b71c4' : '#64748b'};">${isSelected ? 'Terpilih' : 'Pilih'}</span></div>
+        `;
+        card.addEventListener('click', () => {
+          if (isTaken && !isSelected) return;
+          playerCharacters[currentCharacterPlayer] = character.id;
+          renderCharacterSummary();
+          renderCharacterGrid();
+          updateStartButton();
+        });
+        characterGrid.append(card);
+      });
+    }
+
+    function updateStartButton() {
+      document.getElementById('startGameButton').disabled = !playerCharacters.slice(0, selectedPlayerCount).every(Boolean);
+    }
+
+    function buildPlayers() {
+      players = [];
+      for (let index = 0; index < selectedPlayerCount; index += 1) {
+        const character = getCharacterById(playerCharacters[index]);
+        players.push({
+          name: playerNames[index].trim() || `Pemain ${index + 1}`,
+          position: 1,
+          color: `p${index + 1}`,
+          character,
+          avatar: character.initial
+        });
+      }
+    }
+
+    function startGame() {
+      buildPlayers();
+      currentPlayer = 0;
+      gameEnded = false;
+      awaitingMove = false;
+      pendingDice = 0;
+      diceValueLabel.textContent = '-';
+      rollButton.disabled = false;
+      instructionText.textContent = 'Tekan "Lempar Dadu" untuk memulai giliran pemain.';
+      document.getElementById('gameLog').innerHTML = '';
+      showPage('game');
+      createBoard();
+      renderPlayers();
+      addLog('Game dimulai!');
+    }
+
+    function renderPlayers() {
+      playerStatusList.innerHTML = '';
+      players.forEach((player, index) => {
+        const card = document.createElement('div');
+        card.className = 'status-row' + (index === currentPlayer ? ' active' : '');
+        card.innerHTML = `
+          <div class="status-info">
+            <div class="status-avatar" style="background:${player.character.color};">${player.avatar}</div>
+            <div class="status-text">
+              <strong>${player.name}</strong>
+              <span>${player.character.label}</span>
+            </div>
+          </div>
+          <div class="stat-small">Posisi: ${positionLabel(player.position)}</div>
+        `;
+        playerStatusList.append(card);
+      });
+      currentPlayerLabel.textContent = players[currentPlayer].name;
+      boardData.forEach(cell => {
+        const markerContainer = document.getElementById(`cell-${cell.number}-markers`);
+        if (markerContainer) markerContainer.innerHTML = '';
+      });
+      players.forEach((player, index) => {
+        const marker = document.createElement('div');
+        marker.className = `marker ${player.color}`;
+        marker.textContent = player.avatar;
+        const target = document.getElementById(`cell-${player.position}-markers`);
+        if (target) target.append(marker);
+      });
+    }
+
+    function positionLabel(pos) {
+      const cell = boardData.find(item => item.number === pos);
+      if (!cell) return pos;
+      if (cell.type === 'start') return 'START';
+      if (cell.type === 'finish') return 'FINISH';
+      return pos;
+    }
+
+    function addLog(message) {
+      const log = document.getElementById('gameLog');
+      const entry = document.createElement('div');
+      entry.className = 'log-entry';
+      entry.textContent = message;
+      log.prepend(entry);
+    }
+
+    function createBoard() {
+      const grid = document.getElementById('boardGrid');
+      grid.innerHTML = '';
+      boardData.forEach(cell => {
+        const node = document.createElement('div');
+        node.className = 'cell';
+        if (cell.type) node.classList.add('special');
+        if (cell.type === 'start') node.classList.add('start');
+        if (cell.type === 'finish') node.classList.add('finish');
+        node.dataset.number = cell.number;
+        node.innerHTML = `
+          <div class="cell-number">${cell.number}</div>
+          <div class="cell-icon">${cell.icon}</div>
+          <div class="cell-label">${cell.title}</div>
+          <div class="player-marker" id="cell-${cell.number}-markers"></div>
+        `;
+        node.addEventListener('click', () => handleCellClick(cell.number));
+        grid.append(node);
+      });
+      highlightAllowedCell();
+    }
+
+    function highlightAllowedCell() {
+      const cells = document.querySelectorAll('.cell');
+      cells.forEach(cell => {
+        cell.classList.remove('allowed');
+      });
+      if (!awaitingMove) return;
+      const target = Math.min(48, players[currentPlayer].position + pendingDice);
+      const allowedCell = document.querySelector(`.cell[data-number="${target}"]`);
+      if (allowedCell) allowedCell.classList.add('allowed');
+    }
+
+    function rollDice() {
+      if (gameEnded) return;
+      if (awaitingMove) {
+        instructionText.textContent = `Selesaikan gerakan saat ini dulu ke kotak ${Math.min(48, players[currentPlayer].position + pendingDice)}.`;
+        return;
+      }
+      const dice = Math.floor(Math.random() * 6) + 1;
+      pendingDice = dice;
+      awaitingMove = true;
+      rollButton.disabled = true;
+      diceValueLabel.textContent = dice;
+      const rawTarget = players[currentPlayer].position + dice;
+      const target = Math.min(48, rawTarget);
+      instructionText.textContent = `Dadu menunjukkan angka ${dice}. Pindahkan karakter kamu ke kotak ${target}.`;
+      addLog(`${players[currentPlayer].name} melempar dadu: ${dice}.`);
+      highlightAllowedCell();
+    }
+
+    function handleCellClick(number) {
+      if (!awaitingMove || gameEnded) return;
+      const expected = Math.min(48, players[currentPlayer].position + pendingDice);
+      if (number !== expected) {
+        instructionText.textContent = `Kotak tidak sesuai jumlah dadu. Klik kotak ${expected}.`;
+        addLog('Kotak tidak sesuai jumlah dadu.');
+        return;
+      }
+      players[currentPlayer].position = number;
+      addLog(`${players[currentPlayer].name} bergerak ke kotak ${number}.`);
+      awaitingMove = false;
+      rollButton.disabled = false;
+      instructionText.textContent = `Karakter dipindahkan ke kotak ${number}. Efek kotak akan dijalankan.`;
+      renderPlayers();
+      highlightAllowedCell();
+      const square = boardData.find(item => item.number === number);
+      if (square && square.type && square.type !== 'start' && square.type !== 'finish') {
+        handleSpecialSquare(square);
+      } else {
+        finishTurn();
+      }
+    }
+
+    function handleSpecialSquare(square) {
+      const opponentIndex = (currentPlayer + 1) % players.length;
+      const opponent = players[opponentIndex];
+      if (square.type === 'boom') {
+        const card = boomQuestions[Math.floor(Math.random() * boomQuestions.length)];
+        const answer = prompt(`BOOM! ${card.question}`);
+        if (answer && answer.trim().toLowerCase() === card.answer.toLowerCase()) {
+          players[currentPlayer].position = Math.min(48, players[currentPlayer].position + 2);
+          addLog(`${players[currentPlayer].name} benar! Maju 2 langkah ke ${players[currentPlayer].position}.`);
+        } else {
+          players[currentPlayer].position = Math.max(1, players[currentPlayer].position - 1);
+          addLog(`${players[currentPlayer].name} salah! Mundur 1 langkah ke ${players[currentPlayer].position}.`);
+        }
+      }
+      if (square.type === 'challenge') {
+        const card = challengeQuestions[Math.floor(Math.random() * challengeQuestions.length)];
+        const answer = prompt(`TANTANGAN! ${card.question}`);
+        if (answer && answer.trim().toLowerCase() === card.answer.toLowerCase()) {
+          players[currentPlayer].position = Math.min(48, players[currentPlayer].position + 2);
+          addLog(`${players[currentPlayer].name} benar! Maju 2 langkah ke ${players[currentPlayer].position}.`);
+        } else {
+          players[currentPlayer].position = Math.max(1, players[currentPlayer].position - 1);
+          addLog(`${players[currentPlayer].name} salah! Mundur 1 langkah ke ${players[currentPlayer].position}.`);
+        }
+      }
+      if (square.type === 'lamp') {
+        const fact = lampFacts[Math.floor(Math.random() * lampFacts.length)];
+        alert(`LAMP: ${fact}`);
+        addLog(`${players[currentPlayer].name} membaca fakta: ${fact}`);
+      }
+      if (square.type === 'cannon') {
+        players[currentPlayer].position = square.target;
+        addLog(`${players[currentPlayer].name} naik MERIAM ke ${square.target}.`);
+      }
+      if (square.type === 'slide') {
+        players[currentPlayer].position = square.target;
+        addLog(`${players[currentPlayer].name} turun PEROSOTAN ke ${square.target}.`);
+      }
+      renderPlayers();
+      if (players[currentPlayer].position >= 48) {
+        finishTurn(true);
+      } else {
+        finishTurn();
+      }
+    }
+
+    function finishTurn() {
+      if (players[currentPlayer].position >= 48) {
+        gameEnded = true;
+        rollButton.disabled = true;
+        instructionText.textContent = `${players[currentPlayer].name} menang! 🎉`;
+        addLog(`${players[currentPlayer].name} mencapai FINISH dan menang!`);
+        return;
+      }
+      currentPlayer = (currentPlayer + 1) % players.length;
+      renderPlayers();
+      diceValueLabel.textContent = '-';
+      pendingDice = 0;
+      awaitingMove = false;
+      rollButton.disabled = false;
+      instructionText.textContent = `Giliran ${players[currentPlayer].name}. Tekan "Lempar Dadu" untuk memulai.`;
+      addLog(`Giliran berpindah ke ${players[currentPlayer].name}.`);
+    }
+
+    document.getElementById('introContinue').addEventListener('click', () => showPage('setup'));
+    document.getElementById('setupContinue').addEventListener('click', () => {
+      playerCharacters = [null, null, null, null];
+      currentCharacterPlayer = 0;
+      showPage('character');
+      renderCharacterSummary();
+      renderCharacterGrid();
+      updateStartButton();
+    });
+    document.getElementById('startGameButton').addEventListener('click', startGame);
+
+    document.querySelectorAll('#playerCountOptions .radio-option').forEach(option => {
+      option.addEventListener('click', () => {
+        selectedPlayerCount = Number(option.dataset.count);
+        document.querySelectorAll('#playerCountOptions .radio-option').forEach(item => item.classList.remove('selected'));
+        option.classList.add('selected');
+        renderPlayerNameFields();
+      });
+    });
+
+    rollButton.addEventListener('click', rollDice);
+
+    renderPlayerNameFields();
+  </script>
+</body>
+</html>
