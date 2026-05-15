@@ -744,7 +744,7 @@
     };
     
     const specialSquares = {
-      43: { title: 'START', icon: '🏁', type: 'start' },
+      1: { title: 'START', icon: '🏁', type: 'start' },
       48: { title: 'FINISH', icon: '🏁', type: 'finish' },
       2: { title: 'BOOM', icon: '💣', type: 'boom' },
       3: { title: 'TANTANGAN', icon: '🏋️', type: 'challenge' },
@@ -925,7 +925,7 @@
         const character = getCharacterById(playerCharacters[index]);
         players.push({
           name: playerNames[index].trim() || `Pemain ${index + 1}`,
-          position: 43,
+          position: 1,
           color: `p${index + 1}`,
           character,
           avatar: character.initial
