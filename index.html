@@ -685,64 +685,75 @@
   <script>
     const boardData = Array.from({ length: 48 }, (_, index) => ({ number: index + 1, title: 'Normal', icon: '▫️' }));
     
-    // Posisi kotak dalam persentase (x, y dari top-left) untuk gambar board
-    // Layout meander spiral dari bawah ke atas, kiri ke kanan
-    const cellPositions = {
-      // Baris bawah (kotak 1-8)
-      1: { x: 11, y: 90 },
-      2: { x: 18, y: 90 },
-      3: { x: 25, y: 90 },
-      4: { x: 32, y: 90 },
-      5: { x: 39, y: 90 },
-      6: { x: 46, y: 90 },
-      7: { x: 53, y: 90 },
-      8: { x: 60, y: 75 },
-      // Baris 2 (kotak 9-19), meander balik
-      9: { x: 67, y: 75 },
-      10: { x: 60, y: 75 },
-      11: { x: 53, y: 75 },
-      12: { x: 46, y: 71 },
-      13: { x: 11, y: 71 },
-      14: { x: 18, y: 71 },
-      15: { x: 25, y: 71 },
-      16: { x: 32, y: 71 },
-      17: { x: 39, y: 56 },
-      18: { x: 46, y: 56 },
-      19: { x: 60, y: 56 },
-      // Baris 3 (kotak 20-31)
-      20: { x: 67, y: 56 },
-      21: { x: 60, y: 52 },
-      22: { x: 53, y: 52 },
-      23: { x: 46, y: 48 },
-      24: { x: 39, y: 48 },
-      25: { x: 32, y: 48 },
-      26: { x: 18, y: 48 },
-      27: { x: 11, y: 44 },
-      28: { x: 18, y: 44 },
-      29: { x: 25, y: 41 },
-      30: { x: 32, y: 41 },
-      31: { x: 39, y: 37 },
-      // Baris 4 (kotak 32-43)
-      32: { x: 46, y: 33 },
-      33: { x: 53, y: 33 },
-      34: { x: 60, y: 33 },
-      35: { x: 67, y: 33 },
-      36: { x: 60, y: 27 },
-      37: { x: 53, y: 27 },
-      38: { x: 46, y: 27 },
-      39: { x: 39, y: 27 },
-      40: { x: 32, y: 27 },
-      41: { x: 25, y: 23 },
-      42: { x: 18, y: 19 },
-      43: { x: 11, y: 11 },
-      // Baris atas (kotak 44-48)
-      44: { x: 18, y: 11 },
-      45: { x: 25, y: 11 },
-      46: { x: 32, y: 7 },
-      47: { x: 39, y: 7 },
-      48: { x: 11, y: 3 }
-    };
-    
+    // Posisi kotak dalam persentase dari gambar board
+// x = kiri ke kanan, y = atas ke bawah
+// Urutan dibuat mengikuti jalur pada board agar token maju 1 kotak demi 1 kotak
+
+const cellPositions = {
+  // Baris bawah: 1 - 6
+  1: { x: 20, y: 91 },
+  2: { x: 29, y: 91 },
+  3: { x: 38, y: 91 },
+  4: { x: 47, y: 91 },
+  5: { x: 56, y: 91 },
+  6: { x: 66, y: 91 },
+
+  // Naik sisi kanan bawah: 7 - 8
+  7: { x: 75, y: 83 },
+  8: { x: 75, y: 73 },
+
+  // Baris kedua dari bawah, kanan ke kiri: 9 - 16
+  9: { x: 66, y: 73 },
+  10: { x: 56, y: 73 },
+  11: { x: 47, y: 73 },
+  12: { x: 38, y: 73 },
+  13: { x: 29, y: 73 },
+  14: { x: 20, y: 73 },
+  15: { x: 11, y: 73 },
+  16: { x: 11, y: 64 },
+
+  // Baris tengah bawah, kiri ke kanan: 17 - 24
+  17: { x: 20, y: 64 },
+  18: { x: 29, y: 64 },
+  19: { x: 38, y: 64 },
+  20: { x: 47, y: 64 },
+  21: { x: 56, y: 64 },
+  22: { x: 66, y: 64 },
+  23: { x: 75, y: 64 },
+  24: { x: 75, y: 55 },
+
+  // Baris tengah, kanan ke kiri: 25 - 32
+  25: { x: 66, y: 55 },
+  26: { x: 56, y: 55 },
+  27: { x: 47, y: 55 },
+  28: { x: 38, y: 55 },
+  29: { x: 29, y: 55 },
+  30: { x: 20, y: 55 },
+  31: { x: 11, y: 55 },
+  32: { x: 11, y: 45 },
+
+  // Baris atas tengah, kiri ke kanan: 33 - 40
+  33: { x: 20, y: 45 },
+  34: { x: 29, y: 45 },
+  35: { x: 38, y: 45 },
+  36: { x: 47, y: 45 },
+  37: { x: 56, y: 45 },
+  38: { x: 66, y: 45 },
+  39: { x: 75, y: 45 },
+  40: { x: 75, y: 35 },
+
+  // Baris atas kedua, kanan ke kiri: 41 - 46
+  41: { x: 66, y: 35 },
+  42: { x: 56, y: 35 },
+  43: { x: 47, y: 35 },
+  44: { x: 38, y: 35 },
+  45: { x: 29, y: 35 },
+  46: { x: 20, y: 35 },
+
+  // Finish area atas kiri
+  47: { x: 20, y: 24 },
+  48: { x: 11, y: 14 }
+};
     const specialSquares = {
       1: { title: 'START', icon: '🏁', type: 'start' },
       48: { title: 'FINISH', icon: '🏁', type: 'finish' },
