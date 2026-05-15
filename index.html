@@ -441,6 +441,24 @@
       display: none;
     }
 
+    .debug-point {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      width: 18px;
+      height: 18px;
+      transform: translate(-50%, -50%);
+      border-radius: 999px;
+      background: rgba(245, 158, 11, 0.95);
+      color: white;
+      font-size: 0.65rem;
+      font-weight: 700;
+      display: grid;
+      place-items: center;
+      z-index: 6;
+      pointer-events: none;
+    }
+
     .player-marker {
       position: absolute;
       bottom: -4px;
@@ -685,75 +703,77 @@
   <script>
     const boardData = Array.from({ length: 48 }, (_, index) => ({ number: index + 1, title: 'Normal', icon: '▫️' }));
     
+    const DEBUG_CELL_POSITIONS = true;
+    
     // Posisi kotak dalam persentase dari gambar board
-// x = kiri ke kanan, y = atas ke bawah
-// Urutan dibuat mengikuti jalur pada board agar token maju 1 kotak demi 1 kotak
+    // x = kiri ke kanan, y = atas ke bawah
+    // Setiap koordinat mengikuti kotak bernomor pada desain papan,
+    // bukan garis lonjong oranye dekoratif.
+    const cellPositions = {
+      // Baris 1 (bawah): 1 - 6
+      1: { x: 20, y: 91 },
+      2: { x: 29, y: 91 },
+      3: { x: 38, y: 91 },
+      4: { x: 47, y: 91 },
+      5: { x: 56, y: 91 },
+      6: { x: 66, y: 91 },
 
-const cellPositions = {
-  // Baris bawah: 1 - 6
-  1: { x: 20, y: 91 },
-  2: { x: 29, y: 91 },
-  3: { x: 38, y: 91 },
-  4: { x: 47, y: 91 },
-  5: { x: 56, y: 91 },
-  6: { x: 66, y: 91 },
+      // Baris 2: 7 - 12 (kanan ke kiri)
+      7: { x: 66, y: 83 },
+      8: { x: 56, y: 83 },
+      9: { x: 47, y: 83 },
+      10: { x: 38, y: 83 },
+      11: { x: 29, y: 83 },
+      12: { x: 20, y: 83 },
 
-  // Naik sisi kanan bawah: 7 - 8
-  7: { x: 75, y: 83 },
-  8: { x: 75, y: 73 },
+      // Baris 3: 13 - 18 (kiri ke kanan)
+      13: { x: 20, y: 73 },
+      14: { x: 29, y: 73 },
+      15: { x: 38, y: 73 },
+      16: { x: 47, y: 73 },
+      17: { x: 56, y: 73 },
+      18: { x: 66, y: 73 },
 
-  // Baris kedua dari bawah, kanan ke kiri: 9 - 16
-  9: { x: 66, y: 73 },
-  10: { x: 56, y: 73 },
-  11: { x: 47, y: 73 },
-  12: { x: 38, y: 73 },
-  13: { x: 29, y: 73 },
-  14: { x: 20, y: 73 },
-  15: { x: 11, y: 73 },
-  16: { x: 11, y: 64 },
+      // Baris 4: 19 - 24 (kanan ke kiri)
+      19: { x: 66, y: 64 },
+      20: { x: 56, y: 64 },
+      21: { x: 47, y: 64 },
+      22: { x: 38, y: 64 },
+      23: { x: 29, y: 64 },
+      24: { x: 20, y: 64 },
 
-  // Baris tengah bawah, kiri ke kanan: 17 - 24
-  17: { x: 20, y: 64 },
-  18: { x: 29, y: 64 },
-  19: { x: 38, y: 64 },
-  20: { x: 47, y: 64 },
-  21: { x: 56, y: 64 },
-  22: { x: 66, y: 64 },
-  23: { x: 75, y: 64 },
-  24: { x: 75, y: 55 },
+      // Baris 5: 25 - 30 (kiri ke kanan)
+      25: { x: 20, y: 55 },
+      26: { x: 29, y: 55 },
+      27: { x: 38, y: 55 },
+      28: { x: 47, y: 55 },
+      29: { x: 56, y: 55 },
+      30: { x: 66, y: 55 },
 
-  // Baris tengah, kanan ke kiri: 25 - 32
-  25: { x: 66, y: 55 },
-  26: { x: 56, y: 55 },
-  27: { x: 47, y: 55 },
-  28: { x: 38, y: 55 },
-  29: { x: 29, y: 55 },
-  30: { x: 20, y: 55 },
-  31: { x: 11, y: 55 },
-  32: { x: 11, y: 45 },
+      // Baris 6: 31 - 36 (kanan ke kiri)
+      31: { x: 66, y: 45 },
+      32: { x: 56, y: 45 },
+      33: { x: 47, y: 45 },
+      34: { x: 38, y: 45 },
+      35: { x: 29, y: 45 },
+      36: { x: 20, y: 45 },
 
-  // Baris atas tengah, kiri ke kanan: 33 - 40
-  33: { x: 20, y: 45 },
-  34: { x: 29, y: 45 },
-  35: { x: 38, y: 45 },
-  36: { x: 47, y: 45 },
-  37: { x: 56, y: 45 },
-  38: { x: 66, y: 45 },
-  39: { x: 75, y: 45 },
-  40: { x: 75, y: 35 },
+      // Baris 7: 37 - 42 (kiri ke kanan)
+      37: { x: 20, y: 35 },
+      38: { x: 29, y: 35 },
+      39: { x: 38, y: 35 },
+      40: { x: 47, y: 35 },
+      41: { x: 56, y: 35 },
+      42: { x: 66, y: 35 },
 
-  // Baris atas kedua, kanan ke kiri: 41 - 46
-  41: { x: 66, y: 35 },
-  42: { x: 56, y: 35 },
-  43: { x: 47, y: 35 },
-  44: { x: 38, y: 35 },
-  45: { x: 29, y: 35 },
-  46: { x: 20, y: 35 },
-
-  // Finish area atas kiri
-  47: { x: 20, y: 24 },
-  48: { x: 11, y: 14 }
-};
+      // Baris 8: 43 - 48 (kanan ke kiri)
+      43: { x: 66, y: 24 },
+      44: { x: 56, y: 24 },
+      45: { x: 47, y: 24 },
+      46: { x: 38, y: 24 },
+      47: { x: 29, y: 24 },
+      48: { x: 20, y: 24 }
+    };
     const specialSquares = {
       1: { title: 'START', icon: '🏁', type: 'start' },
       48: { title: 'FINISH', icon: '🏁', type: 'finish' },
@@ -1026,13 +1046,20 @@ const cellPositions = {
           node.style.height = '10%';
           node.style.transform = 'translate(-50%, -50%)';
         }
-        
+
         node.innerHTML = `
           <div class="cell-number">${cell.number}</div>
           <div class="cell-icon">${cell.icon}</div>
           <div class="cell-label">${cell.title}</div>
           <div class="player-marker" id="cell-${cell.number}-markers"></div>
         `;
+
+        if (DEBUG_CELL_POSITIONS) {
+          const debugDot = document.createElement('div');
+          debugDot.className = 'debug-point';
+          debugDot.textContent = cell.number;
+          node.append(debugDot);
+        }
         node.addEventListener('click', () => handleCellClick(cell.number));
         grid.append(node);
       });
